@@ -16,7 +16,6 @@ class VaultCrypto:
         self.db = self._load_db()
 
     def _load_key(self):
-        # Eğer başka bilgisayarda key dosyası yoksa sıfırdan üretir
         if not os.path.exists(self.KEY_FILE):
             key = Fernet.generate_key()
             with open(self.KEY_FILE, "wb") as f:
@@ -26,7 +25,6 @@ class VaultCrypto:
             return f.read()
 
     def _load_db(self):
-        # Eğer başka bilgisayarda veritabanı json dosyası yoksa otomatik boş şablon açar
         if os.path.exists(self.DATA_FILE):
             try:
                 with open(self.DATA_FILE, "r", encoding="utf-8") as f:

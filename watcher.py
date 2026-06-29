@@ -1,14 +1,21 @@
 """
 Vaultify Pro - v1.0
-Akıllı Pano İzleme Servisi
+Akıllı Pano İzleme Servisi (Görsel CLI Sürümü)
 """
 import time
 import pyperclip
+from rich.console import Console
+from rich.panel import Panel
+
+console = Console()
 
 def start_watch(vault_instance):
-    print("\n[!] İZLEYİCİ AKTİF (v1.0)")
-    print("[!] Şu andan itibaren yapılan YENİ kopyalamalar izleniyor.")
-    print("[!] Sırasıyla: Önce ID/E-posta, sonra Şifre kopyalayın.\n")
+    console.print(Panel(
+        "[bold cyan][!] AKILLI PANO İZLEYİCİ AKTİF EDİLDİ[/]\n\n"
+        "[🛸] Sistem arka planda kopyalama işlemlerini dinliyor.\n"
+        "[🔄] [bold yellow]Sıralama:[/] Önce Giriş Kimliğini (E-posta/ID), ardından Şifreyi kopyalayın.",
+        title="🤖 Vaultify Watcher Engine", border_style="cyan"
+    ))
     
     try:
         last_val = pyperclip.paste()
@@ -29,17 +36,20 @@ def start_watch(vault_instance):
                 
                 if id_data is None:
                     id_data = cur
-                    print(f"\n[+] ID/E-posta yakalandı: {id_data}")
-                    print("[>] Şimdi Şifreyi kopyalayın...")
+                    console.print(f"\n[bold magenta][⚡] Veri Yakalandı (ID/E-posta):[/] [white on magenta] {id_data} [/]")
+                    console.print("[bold yellow][>] Harika! Şimdi bu hesaba ait ŞİFREYİ kopyalayın...[/]")
                 else:
                     password = cur
-                    plat = input("[?] Site Adı nedir?: ")
+                    console.print(f"[bold magenta][⚡] Veri Yakalandı (Şifre):[/] [bold black on yellow] ******** [/]")
+                    
+                    console.print("\n" + "─" * 40)
+                    plat = console.input("[bold green][?] Bu verilerin ait olduğu Platform/Site Adı nedir?: [/]").strip()
                     tip = "E-posta" if "@" in id_data else "Kullanıcı Adı"
                     
                     if vault_instance.add_record(plat, tip, id_data, password):
-                        print("✅ Başarıyla kasaya kaydedildi. Menüye dönülüyor...")
-                        time.sleep(1.5)
+                        console.print(f"\n[bold green]✅ BAŞARILI:[/] '{plat}' verileri AES-256 ile şifrelenerek kasaya kilitlendi.")
+                        time.sleep(2)
                         return
             time.sleep(0.5)
     except KeyboardInterrupt:
-        print("\n[!] İzleyici kapatıldı.")
+        console.print("\n[bold red][!] Pano izleyici kullanıcı tarafından sonlandırıldı.[/]")
