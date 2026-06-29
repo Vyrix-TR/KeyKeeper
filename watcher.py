@@ -47,7 +47,7 @@ def start_watch(vault_instance):
                     tip = "E-posta" if "@" in id_data else "Kullanıcı Adı"
                     
                     if vault_instance.add_record(plat, tip, id_data, password):
-                        console.print(f"\n[bold green]✅ BAŞARILI:[/] '{plat}' verileri AES-256 ile şifrelenerek kasaya kilitlendi.")
+                        console.print(f"\n[bold green]✅ BAŞARILI:[/] '{plat}' verileri bütünsel bütünlüğe eklenerek şifrelendi.")
                         time.sleep(2)
                         return
             time.sleep(0.5)

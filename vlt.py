@@ -23,16 +23,62 @@ def draw_header():
     clear_screen()
     header_text = (
         "[bold green]⚡ VAULTIFY SİBER GÜVENLİK İSTASYONU ⚡[/]\n"
-        "[dim]Yerel AES-256 Şifreleme ve Pano Yönetim Sistemi | Sürüm v1.0[/]"
+        "[dim]Bütünsel AES-256 Şifreleme ve Pano Yönetim Sistemi | Sürüm v1.0[/]"
     )
     console.print(Panel(Align.center(header_text), border_style="green", expand=False))
     print()
 
+def authenticate():
+    clear_screen()
+    
+    # 1. Durum: İlk Kurulum (Parola Belirleme)
+    if vault.is_first_run():
+        console.print(Panel(
+            "[bold cyan][⚡] İLK KURULUM TESPİT EDİLDİ[/]\n\n"
+            "[!] Lütfen bu kasaya erişmek için kullanacağınız bir [bold yellow]Master Password (Ana Parola)[/] belirleyin.\n"
+            "[⚠️] Bu parolayı unutursanız verilerinize bir daha asla erişemezsiniz!",
+            title="🔐 Vaultify Provisioning", border_style="cyan"
+        ))
+        while True:
+            p1 = getpass("Yeni Ana Parola Oluşturun: ").strip()
+            if not p1:
+                console.print("[bold red]Parola boş bırakılamaz![/]")
+                continue
+            p2 = getpass("Parolayı Tekrar Girin: ").strip()
+            
+            if p1 == p2:
+                vault.set_master_password(p1)
+                console.print("\n[bold green]✅ Ana parola başarıyla oluşturuldu! Sistem başlatılıyor...[/]")
+                time.sleep(2)
+                break
+            else:
+                console.print("[bold red]❌ Parolalar eşleşmedi! Lütfen tekrar deneyin.[/]")
+    
+    # 2. Durum: Normal Giriş
+    else:
+        draw_header()
+        console.print("[bold yellow]🔒 KASA KİLİTLİ[/]\n")
+        attempts = 3
+        while attempts > 0:
+            passwd = getpass(f"Master Password Girin ({attempts} Hak): ").strip()
+            if vault.verify_master_password(passwd):
+                console.print("\n[bold green]🔓 ERİŞİM ONAYLANDI: Kasa başarıyla açıldı.[/]")
+                time.sleep(1)
+                return True
+            else:
+                attempts -= 1
+                console.print("[bold red]❌ GEÇERSİZ PAROLA! Erişim reddedildi.[/]\n")
+        
+        console.print("[bold black on red]🛑 SİSTEM KİLİTLENDİ: Çok fazla hatalı deneme yapıldı.[/]")
+        time.sleep(2)
+        sys.exit()
+
 def main():
+    authenticate()
+    
     while True:
         draw_header()
         
-        # Ana Menü Tablosu
         menu_table = Table(box=None, expand=False)
         menu_table.add_column("Komut", style="bold yellow", justify="center")
         menu_table.add_column("Açıklama", style="bold white")
@@ -62,7 +108,7 @@ def main():
             s = getpass("Şifre (Güvenlik için yazarken ekranda gizlenir): ")
             
             if vault.add_record(p, t, k, s): 
-                console.print(f"\n[bold green]✅ BAŞARILI:[/] '{p}' verileri şifrelenerek yerel veritabanına işlendi.")
+                console.print(f"\n[bold green]✅ BAŞARILI:[/] '{p}' veritabanına eklendi ve tüm dosya mühürlendi.")
             
         elif sec == "2":
             draw_header()
@@ -105,7 +151,7 @@ def main():
             onay = console.input(f"[bold yellow][!] '{p}' kaydı kalıcı olarak silinecek. Onaylıyor musunuz? (e/h): [/]").lower().strip()
             if onay == 'e':
                 if vault.delete_record(p): 
-                    console.print(f"\n[bold green]✅ BAŞARILI:[/] '{p}' kaydı kasadan tamamen temizlendi.")
+                    console.print(f"\n[bold green]✅ BAŞARILI:[/] '{p}' kaydı kasadan temizlendi ve dosya yeniden mühürlendi.")
                 else: 
                     console.print(f"\n[bold red]❌ HATA:[/] '{p}' kaydı silinemedi veya bulunamadı.")
             else:
