@@ -1,8 +1,9 @@
 """
-Vaultify Pro - CLI Arayüzü
-Görsel ve operasyonel yönetim paneli.
+Vaultify Pro - v1.0
+Ana Çalıştırıcı ve CLI Menü
 """
-import sys, os
+import sys
+import os
 from getpass import getpass
 from rich.console import Console
 from rich.table import Table
@@ -16,45 +17,49 @@ vault = VaultCrypto()
 def main():
     while True:
         os.system('cls' if os.name == 'nt' else 'clear')
-        menu = Table(title="🛡️ Vaultify Pro v2.0", show_header=False, box=None)
-        menu.add_row("[bold cyan]1.[/] ➕ Yeni Kayıt Ekle")
-        menu.add_row("[bold cyan]2.[/] 🔍 Kayıt Oku")
-        menu.add_row("[bold cyan]3.[/] 📂 Listele")
-        menu.add_row("[bold cyan]4.[/] 🗑️ Sil")
-        menu.add_row("[bold cyan]5.[/] 👀 İzleyici")
-        menu.add_row("[bold red]0.[/] ❌ Çıkış")
-        console.print(Panel(menu, expand=False))
+        menu = Table(title="🛡️ Vaultify PRO v1.0", box=None)
+        menu.add_row("[1] Ekle [2] Oku [3] Listele [4] Sil [5] İzleyici [0] Çıkış")
+        console.print(Panel(menu))
         
-        sec = console.input("[bold yellow]👉 Seçim:[/]")
+        sec = console.input("[bold yellow]Seçiminiz:[/] ")
         
         if sec == "1":
-            p = console.input("[green]Site Adı:[/]").strip()
-            t = "E-posta" if console.input("[green]1-Eposta, 2-Kullanıcı Adı:[/]") == "1" else "Kullanıcı Adı"
-            i = console.input(f"[green]{t}:[/]").strip()
-            s = getpass("Şifre (Gizli): ").strip()
-            if p and i and s:
-                if vault.add_record(p, t, i, s): console.print("[bold green]✅ Kaydedildi.[/]")
-        
+            p = console.input("Site/Platform Adı: ")
+            t = "E-posta" if console.input("Giriş Tipi (1: E-posta, 2: Kullanıcı Adı): ") == "1" else "Kullanıcı Adı"
+            k = console.input(f"{t}: ")
+            s = getpass("Şifre (Yazarken gizlenir): ")
+            if vault.add_record(p, t, k, s): 
+                console.print("[green]✅ Başarıyla kaydedildi.[/]")
+            
         elif sec == "2":
-            p = console.input("[yellow]Platform:[/]")
+            p = console.input("Okunacak Platform: ")
             res = vault.get_record(p)
-            if res:
-                console.print(Panel(f"[bold cyan]Tip:[/] {res['tip']}\n[bold cyan]ID:[/] {res['id']}\n[bold cyan]Şifre:[/] {res['sifre']}", title=f"🔍 {p.upper()}"))
-            else: console.print("[bold red]❌ Kayıt yok.[/]")
+            if res: 
+                console.print(f"\n[bold green]🔑 {res['tip']}:[/] {res['kimlik']} | [bold green]Şifre:[/] {res['sifre']}")
+            else: 
+                console.print("[red]❌ Kayıt bulunamadı.[/]")
             
         elif sec == "3":
-            table = Table(title="📂 Tüm Kayıtlar")
-            for p in vault.list_records(): table.add_row(p)
-            console.print(table)
+            kayitlar = vault.list_records()
+            if kayitlar: 
+                console.print(f"\n📂 [bold]Kasadaki Platformlar:[/] {', '.join(kayitlar)}")
+            else: 
+                console.print("[yellow]📂 Kasa şu an boş.[/]")
             
         elif sec == "4":
-            p = console.input("[red]Silinecek:[/]")
-            if vault.delete_record(p): console.print("[bold red]✅ Silindi.[/]")
-            
-        elif sec == "5": start_watch(vault)
-        elif sec == "0": sys.exit()
+            p = console.input("Silinecek Platform: ")
+            if vault.delete_record(p): 
+                console.print("[green]✅ Kayıt silindi.[/]")
+            else: 
+                console.print("[red]❌ Kayıt bulunamadı veya silinemedi.[/]")
         
-        console.input("\n[dim]Devam etmek için Enter...[/]")
+        elif sec == "5": 
+            start_watch(vault)
+            
+        elif sec == "0": 
+            sys.exit()
+            
+        console.input("\nDevam etmek için [Enter]'a basın...")
 
 if __name__ == "__main__":
     main()

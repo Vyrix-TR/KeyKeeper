@@ -1,39 +1,45 @@
-import time, pyperclip
+"""
+Vaultify Pro - v1.0
+Akıllı Pano İzleme Servisi
+"""
+import time
+import pyperclip
 
 def start_watch(vault_instance):
-    print("\n[!] İZLEYİCİ AKTİF.")
-    print("[!] Şu andan itibaren yaptığın kopyalamalar (Ctrl+C) izleniyor.")
-    print("[!] Önce ID/E-posta kopyala, sonra Şifreni kopyala.\n")
+    print("\n[!] İZLEYİCİ AKTİF (v1.0)")
+    print("[!] Şu andan itibaren yapılan YENİ kopyalamalar izleniyor.")
+    print("[!] Sırasıyla: Önce ID/E-posta, sonra Şifre kopyalayın.\n")
     
-    # 1. Başlangıçta panoda ne varsa temizle/yoksay (Programı açtığın anı referans al)
-    last_val = pyperclip.paste()
+    try:
+        last_val = pyperclip.paste()
+    except:
+        last_val = ""
+        
     id_data = None
     
     try:
         while True:
-            cur = pyperclip.paste().strip()
+            try:
+                cur = pyperclip.paste().strip()
+            except:
+                cur = ""
             
-            # 2. Sadece panodaki içerik DEĞİŞTİYSE ve boş değilse işlem yap
             if cur != last_val and len(cur) > 0:
                 last_val = cur
                 
                 if id_data is None:
-                    # ID/E-posta yakalama
                     id_data = cur
                     print(f"\n[+] ID/E-posta yakalandı: {id_data}")
-                    print("[>] Şimdi Şifreyi kopyala...")
+                    print("[>] Şimdi Şifreyi kopyalayın...")
                 else:
-                    # Şifre yakalama
                     password = cur
-                    plat = input("[?] Site Adı: ")
-                    
+                    plat = input("[?] Site Adı nedir?: ")
                     tip = "E-posta" if "@" in id_data else "Kullanıcı Adı"
                     
                     if vault_instance.add_record(plat, tip, id_data, password):
-                        print("✅ Başarıyla kaydedildi. Ana menüye dönülüyor...")
-                        time.sleep(1)
-                        return # Otomatik çıkış
-            
+                        print("✅ Başarıyla kasaya kaydedildi. Menüye dönülüyor...")
+                        time.sleep(1.5)
+                        return
             time.sleep(0.5)
     except KeyboardInterrupt:
-        print("\n[!] İzleyici durduruldu.")
+        print("\n[!] İzleyici kapatıldı.")
